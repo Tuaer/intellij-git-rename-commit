@@ -1,23 +1,25 @@
 plugins {
     id("java")
     id("org.jetbrains.kotlin.jvm") version "1.9.25"
-    id("org.jetbrains.intellij") version "1.17.4"
+    id("org.jetbrains.intellij") version "1.17.2"
 }
 
-group = "org.example"
+group = "me.jirigebauer"
 version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    maven {url = uri("https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/releases")}
+    maven {url = uri("https://cache-redirector.jetbrains.com/intellij-dependencies")}
 }
 
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-    version.set("2024.1.7")
-    type.set("IC") // Target IDE Platform
+    version.set("233.11799.241")
+    type.set("IU") // Target IDE Platform
 
-    plugins.set(listOf(/* Plugin Dependencies */))
+    plugins.set(listOf("Git4Idea"))
 }
 
 tasks {
@@ -31,8 +33,8 @@ tasks {
     }
 
     patchPluginXml {
-        sinceBuild.set("241")
-        untilBuild.set("243.*")
+        sinceBuild.set("233.11799")
+        untilBuild.set("")
     }
 
     signPlugin {
@@ -44,4 +46,16 @@ tasks {
     publishPlugin {
         token.set(System.getenv("PUBLISH_TOKEN"))
     }
+
+    buildPlugin {
+        dependsOn("patchPluginXml")
+    }
+}
+
+dependencies {
+    implementation("org.jetbrains:annotations:24.1.0")
+}
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 }
