@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.utils.addToStdlib.enumSetOf
+
 plugins {
     id("java")
     id("org.jetbrains.kotlin.jvm") version "1.9.25"
@@ -5,7 +7,10 @@ plugins {
 }
 
 group = "me.jirigebauer"
-version = "1.0-SNAPSHOT"
+version = "1.0.0"
+
+val intellijVersion = "2023.3"
+val javaVersion = "17"
 
 repositories {
     mavenCentral()
@@ -13,28 +18,38 @@ repositories {
     maven {url = uri("https://cache-redirector.jetbrains.com/intellij-dependencies")}
 }
 
-// Configure Gradle IntelliJ Plugin
-// Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-    version.set("233.11799.241")
-    type.set("IU") // Target IDE Platform
-
+    version.set(intellijVersion)
+    type.set("IU")
     plugins.set(listOf("Git4Idea"))
 }
 
+dependencies {
+    implementation("org.jetbrains:annotations:24.1.0")
+}
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(javaVersion))
+}
+
+
 tasks {
-    // Set the JVM compatibility versions
     withType<JavaCompile> {
-        sourceCompatibility = "17"
-        targetCompatibility = "17"
+        sourceCompatibility = javaVersion
+        targetCompatibility = javaVersion
+        options.encoding = "UTF-8"
     }
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        kotlinOptions.jvmTarget = "17"
+        kotlinOptions {
+            jvmTarget = javaVersion
+            freeCompilerArgs = listOf("-Xjsr305=strict")
+        }
     }
 
     patchPluginXml {
         sinceBuild.set("233.11799")
-        untilBuild.set("")
+        untilBuild.set("233.*")
+        version.set(project.version.toString())
     }
 
     signPlugin {
@@ -45,17 +60,24 @@ tasks {
 
     publishPlugin {
         token.set(System.getenv("PUBLISH_TOKEN"))
+        channels.set(listOf("Stable"))
     }
 
     buildPlugin {
         dependsOn("patchPluginXml")
     }
-}
 
-dependencies {
-    implementation("org.jetbrains:annotations:24.1.0")
-}
+    runPluginVerifier {
+        ideVersions.set(listOf("IU-2023.3"))
+        failureLevel.set(
+            enumSetOf(
+                org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel.COMPATIBILITY_PROBLEMS,
+                org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel.INVALID_PLUGIN
+            )
+        )
+    }
 
-java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+    runIde {
+        dependsOn("verifyPluginConfiguration")
+    }
 }

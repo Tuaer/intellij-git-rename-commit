@@ -1,20 +1,37 @@
 <idea-plugin>
     <id>me.jirigebauer.renamecommit</id>
+
     <name>Rename Commit</name>
-    <version>1.0</version>
-    <idea-version since-build="233.11799"/>
+
+    <version>1.0.0</version>
+
+    <idea-version since-build="233.11799" until-build="233.*"/>
+
     <vendor email="jiri.gebauer.jr@gmail.com" url="https://github.com/Tuaer">Jiri Gebauer</vendor>
-    <description>Allows renaming the latest Git commit message</description>
+
+    <description>Allows renaming the latest Git commit message directly from the IDE.</description>
+
+
+    <change-notes><![CDATA[
+        Initial release of Rename Commit plugin.
+        Features:
+        - Rename the latest Git commit message via a simple dialog.
+        - Integrates with the Git main menu in IntelliJ IDEA.
+    ]]></change-notes>
+
     <depends>com.intellij.modules.platform</depends>
     <depends>Git4Idea</depends>
+
     <extensions defaultExtensionNs="com.intellij">
     </extensions>
+
     <actions>
         <action id="me.jirigebauer.RenameCommitAction"
                 class="me.jirigebauer.RenameCommitAction"
-                text="Rename Commit"
-                description="Changes the name of the latest commit">
+                text="Rename Current Commit"
+                description="Changes the message of the most recent Git commit in the current repository">
         <add-to-group group-id="Git.MainMenu" anchor="last"/>
+        <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt R"/>
         </action>
     </actions>
 </idea-plugin>
